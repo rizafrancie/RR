@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen2：留言板</title>
+    
+    <style>
+        /* 1. 全域背景設定：溫暖奶油米色 */
+        body { 
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
+            background-color: #FDFBF7;
+            color: #1A1A1A;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* 頂部高質感深綠色頂導覽列 */
+        .app-header {
+            background-color: #1E5643;
+            color: #FDFBF7;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        .app-title { font-size: 18px; font-weight: bold; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .app-nav a { color: #FDFBF7; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .app-nav a:hover { color: #DE9E48; }
+
+        /* 主區塊排版 */
+        .main-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px 40px 20px;
+            box-sizing: border-box;
+        }
+
+        /* 標題區塊 */
+        .page-header {
+            border-bottom: 1px solid #EFECE6;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .page-title { font-size: 28px; font-weight: bold; margin: 0 0 8px 0; letter-spacing: -0.025em; }
+        .page-desc { color: #7A7A7A; font-size: 16px; margin: 0; }
+
+        /* 雙欄響應式佈局 */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        @media (min-width: 992px) {
+            .grid-layout { grid-template-columns: 5fr 7fr; }
+        }
+
+        /* 標誌性：超大圓角純白大卡片 */
+        .main-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EFECE6;
+            border-radius: 32px;
+            padding: 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+            box-sizing: border-box;
+        }
+
+        /* 內層留言獨立小卡片 */
+        .message-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EFECE6;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .message-card:hover { border-color: #D9D4C7; }
+        .message-title { font-size: 20px; font-weight: bold; color: #1A1A1A; margin: 0 0 12px 0; word-break: break-all; }
+        .message-meta { font-size: 15px; color: #6A6A6A; line-height: 1.6; margin-bottom: 16px; }
+        .message-meta span { color: #1A1A1A; font-weight: bold; }
+
+        /* 表單輸入元件 */
+        .form-label { display: block; font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #1A1A1A; }
+        .form-textarea {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #D9D4C7;
+            border-radius: 20px;
+            background-color: #FCFCFA;
+            font-size: 16px;
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 25px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-textarea:focus { border-color: #1E5643; }
+
+        /* 按鈕全系列樣式（精準複製圖片配色與大圓角） */
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; }
+        
+        .btn-green {
+            background-color: #1E5643;
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-green:hover { background-color: #153E30; }
+
+        .btn-outline {
+            background-color: #FFFFFF;
+            color: #5A5A5A;
+            border: 1px solid #D9D4C7;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+            text-align: center;
+        }
+        .btn-outline:hover { background-color: #F7F5F0; }
+
+        .btn-orange {
+            background-color: #DE9E48;
+            color: #FFFFFF;
+            border: none;
+            padding: 8px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-orange:hover { background-color: #C98A36; }
+
+        /* 數據來源網址小灰字條 */
+        .source-bar {
+            font-size: 13px;
+            font-family: monospace;
+            color: #9A9A9A;
+            background-color: #F9F7F2;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #EFECE6;
+            word-break: break-all;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="app-title">
+            💬 PWA 互動留言板
+            <img src="https://ui-avatars.com/api/?name={{ user }}&background=random&size=30" style="border-radius: 50%; margin-left: 10px;" width="30" height="30" alt="avatar">
+            <span style="font-size: 14px; margin-left: 8px;">{{ user }}</span>
+        </div>
+        <nav class="app-nav">
+            <a href="{{ url_for('logout') }}" style="color: #FFAAAA; font-weight: bold;">登出系統</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="page-header">
+            <h1 class="page-title">Screen2：留言板</h1>
+            <p class="page-desc">登入後可發言、可對每篇文章按讚，並每 5 秒自動同步一次最新留言。</p>
+        </div>
+
+        <div class="grid-layout">
+            
+            <div class="main-card">
+                <form id="messageForm">
+                    <label class="form-label">請輸入留言內容</label>
+                    <textarea id="messageContent" rows="5" required class="form-textarea" placeholder="輸入你想分享的内容..."></textarea>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn-green">送出留言</button>
+                        <a href="{{ url_for('settings') }}" class="btn-outline">個人設定</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="main-card">
+                <div style="margin-bottom: 25px;">
+                    <h2 style="font-size: 26px; font-weight: bold; margin: 0;">即時留言列表</h2>
+                    <div class="source-bar">
+                        資料來源：https://chat-app0051-default-rtdb.firebaseio.com/my_pwa_chat
+                    </div>
+                </div>
+
+                <div id="messagesContainer">
+                    <div style="text-align: center; color: #9A9A9A; padding: 40px 0;">同步即時資料庫中...</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 對接你截圖中目前使用的主端點節點
+        const FIREBASE_URL = "https://chat-app0051-default-rtdb.firebaseio.com/my_pwa_chat";
+        const CURRENT_USER = "{{ user }}";
+
+        // 1. 從 Firebase 抓取資料並完美渲染成奶油卡片
+        async function fetchMessages() {
+            try {
+                const response = await fetch(`${FIREBASE_URL}.json`);
+                const data = await response.json();
+                const container = document.getElementById('messagesContainer');
+                
+                if (!data) {
+                    container.innerHTML = `<div style="text-align: center; color: #9A9A9A; padding: 40px 0;">目前資料庫尚無留言，快來當第一個發言的人吧！</div>`;
+                    return;
+                }
+
+                let htmlContent = '';
+                // 轉為陣列並將最新排序（最新留言置頂）
+                const keys = Object.keys(data).reverse();
+
+                keys.forEach(key => {
+                    const item = data[key];
+                    // 防呆防空：若資料庫沒有對應值則給予預設值
+                    const author = item.username ? item.username : "匿名使用者";
+                    const likes = item.likes !== undefined ? item.likes : 0;
+                    const love = item.love !== undefined ? item.love : 0;
+                    const haha = item.haha !== undefined ? item.haha : 0;
+                    const wow = item.wow !== undefined ? item.wow : 0;
+                    const sad = item.sad !== undefined ? item.sad : 0;
+                    const angry = item.angry !== undefined ? item.angry : 0;
+                    
+                    htmlContent += `
+                        <div class="message-card">
+                            <h3 class="message-title">${escapeHTML(item.content)}</h3>
+                            <div class="message-meta" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&background=random&size=40" style="border-radius: 50%;" width="40" height="40" alt="avatar">
+                                <div>
+                                    <div>作者：<span>${escapeHTML(author)}</span></div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button onclick="handleMood('${key}', 'likes', ${likes})" class="btn-orange">👍 讚 (${likes})</button>
+                                <button onclick="handleMood('${key}', 'love', ${love})" class="btn-orange">❤️ 大心 (${love})</button>
+                                <button onclick="handleMood('${key}', 'haha', ${haha})" class="btn-orange">😂 哈 (${haha})</button>
+                                <button onclick="handleMood('${key}', 'wow', ${wow})" class="btn-orange">😲 哇 (${wow})</button>
+                                <button onclick="handleMood('${key}', 'sad', ${sad})" class="btn-orange">😢 嗚 (${sad})</button>
+                                <button onclick="handleMood('${key}', 'angry', ${angry})" class="btn-orange">😡 怒 (${angry})</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = htmlContent;
+            } catch (error) {
+                console.error("Firebase 連線或讀取失敗:", error);
+            }
+        }
+
+        // 2. 表單新增發言至 Firebase
+        document.getElementById('messageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('messageContent');
+            const content = input.value.trim();
+
+            if (!content) return;
+
+            const postData = {
+                username: CURRENT_USER,
+                content: content,
+                likes: 0,
+                love: 0,
+                haha: 0,
+                wow: 0,
+                sad: 0,
+                angry: 0,
+                timestamp: new Date().getTime()
+            };
+
+            try {
+                await fetch(`${FIREBASE_URL}.json`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData)
+                });
+                input.value = ''; // 清空輸入欄
+                fetchMessages();  // 送出後立即重新同步渲染
+            } catch (error) {
+                alert("留言發送失敗，請確認網路連線狀態！");
+            }
+        });
+
+        // 3. 心情更新 (PATCH 操作)
+        async function handleMood(key, moodType, currentCount) {
+            try {
+                const bodyData = {};
+                bodyData[moodType] = currentCount + 1;
+                await fetch(`${FIREBASE_URL}/${key}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyData)
+                });
+                fetchMessages(); // 按心情後即時重整
+            } catch (error) {
+                console.error("心情點擊失敗:", error);
+            }
+        }
+
+        // HTML 安全跳脫工具（防止 XSS）
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t] || t));
+        }
+
+        // 4. 初始化讀取與設定每 5 秒自動輪詢更新
+        fetchMessages();
+        setInterval(fetchMessages, 5000);
+    </script>
+</body>
+</html>

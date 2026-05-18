@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+# Local environment variables or local deployment artifacts
+.env
+.venv
+env/
+venv/
+ENV/
+artifacts/
+
+# Editors and IDEs workspace metadata configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Operating System specific tracking files
+.DS_Store
+Thumbs.db
